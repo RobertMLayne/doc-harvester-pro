@@ -1,0 +1,4 @@
+# docs/architecture.svg  (placeholder description)
+<!-- A simple block‑diagram will be generated programmatically in a later step
+     to visualise the flow: CLI → Dispatcher → Fetcher → Converter → Splitter → Writer.
+-->

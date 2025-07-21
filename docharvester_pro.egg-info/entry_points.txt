@@ -1,0 +1,3 @@
+[console_scripts]
+chat-split = docharvester_pro.utils.chat_export_splitter:main
+docharvester = docharvester_pro.scrape_to_markdown:main

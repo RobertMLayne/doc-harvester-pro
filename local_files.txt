@@ -1,0 +1,2 @@
+file:///opt/dumps/rendered.html
+C:\static\news\2024‑05‑28.html

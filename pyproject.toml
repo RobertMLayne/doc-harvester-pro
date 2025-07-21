@@ -1,0 +1,36 @@
+# pyproject.toml
+[project]
+name = "docharvester-pro"
+version = "0.1.0"
+description = "HTML → Markdown harvester with async Playwright fallback"
+requires-python = ">=3.12"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+
+[project.scripts]
+docharvester-pro = "docharvester_pro.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.1",
+  "pytest-asyncio>=0.23",
+  "pytest-cov",
+  "flake8",
+  "pylint",
+  "coverage[toml]",
+  "playwright>=1.52",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.coverage.run]
+branch = true
+source = ["docharvester_pro"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+
+[tool.pylint.MASTER]
+good-names = ["i", "j", "k", "ts"]

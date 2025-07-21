@@ -1,0 +1,5 @@
+aiohttp>=3.9
+beautifulsoup4>=4.12
+markdownify>=0.11
+playwright>=1.44
+pdfkit>=1.0.0

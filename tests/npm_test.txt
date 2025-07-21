@@ -1,0 +1,4 @@
+$ npm test
+> jest
+ PASS  scraper-service.test.ts
+✓ returns html (3 ms)

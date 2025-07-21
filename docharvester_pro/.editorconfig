@@ -1,0 +1,13 @@
+Guidelines for Contributors
+Always use plain ASCII for punctuation in code, comments, and documentation.
+Avoid pasting text from word processors or web pages directly into code.
+Use code linters (e.g., flake8, pylint) with plugins that warn about non-ASCII characters.
+Review diffs for unexpected characters before committing.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true

@@ -1,0 +1,130 @@
+Folder PATH listing for volume OS
+Volume serial number is 2EBA-0438
+C:\USERS\WORKSTATIONADMIN\ONEDRIVE\DOCUMENTS\DEV\PROJECTS\DOCHARVESTER-PRO
+¦   ..venvScriptsactivate.bat
+¦   export_structure.txt
+¦   local_files.txt
+¦   node_renderer
+¦   pyproject.toml
+¦   requirements.txt
+¦   root.py
+¦   scraper-service.ts
+¦   test_smoke.py
+¦   __init__.py
+¦   
++---.github
+¦   +---workflows
+¦           ci.yml
+¦           
++---.pytest_cache
+¦   ¦   .gitignore
+¦   ¦   CACHEDIR.TAG
+¦   ¦   README.md
+¦   ¦   
+¦   +---v
+¦       +---cache
+¦               nodeids
+¦               
++---.venv (not showing; too long)
+¦           
++---docharvester_pro
+¦   ¦   .editorconfig
+¦   ¦   cli.py
+¦   ¦   dispatcher.py
+¦   ¦   html_render.py
+¦   ¦   io_utils.py
+¦   ¦   logger.py
+¦   ¦   logging_utils.py
+¦   ¦   scrape_to_markdown.py
+¦   ¦   splitters.py
+¦   ¦   __init__.py
+¦   ¦   
+¦   +---fetchers
+¦   ¦   ¦   aiohttp_fetch.py
+¦   ¦   ¦   file_fetch.py
+¦   ¦   ¦   playwright_async.py
+¦   ¦   ¦   __init__.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           aiohttp_fetch.cpython-313.pyc
+¦   ¦           file_fetch.cpython-313.pyc
+¦   ¦           playwright_async.cpython-313.pyc
+¦   ¦           __init__.cpython-313.pyc
+¦   ¦           
+¦   +---md_tools
+¦   ¦   ¦   convert.py
+¦   ¦   ¦   splitters.py
+¦   ¦   ¦   __init__.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           convert.cpython-313.pyc
+¦   ¦           splitters.cpython-313.pyc
+¦   ¦           __init__.cpython-313.pyc
+¦   ¦           
+¦   +---utils
+¦   ¦       chat_export_splitter.py
+¦   ¦       
+¦   +---__pycache__
+¦           cli.cpython-313.pyc
+¦           dispatcher.cpython-313.pyc
+¦           io_utils.cpython-313.pyc
+¦           logger.cpython-313.pyc
+¦           logging_utils.cpython-313.pyc
+¦           splitters.cpython-313.pyc
+¦           __init__.cpython-313.pyc
+¦           
++---docharvester_pro.egg-info
+¦       dependency_links.txt
+¦       entry_points.txt
+¦       PKG-INFO
+¦       requires.txt
+¦       SOURCES.txt
+¦       top_level.txt
+¦       
++---docs
+¦       architecture.svg
+¦       CHANGELOG.md
+¦       CONTRIBUTING.md
+¦       README.md
+¦       
++---tests
+¦   ¦   npm_test.txt
+¦   ¦   pytest.txt
+¦   ¦   scraper-service.test.ts
+¦   ¦   test_cli_smoke.py
+¦   ¦   test_core.py
+¦   ¦   test_dispatcher.py
+¦   ¦   test_splitters.py
+¦   ¦   
+¦   +---e2e
+¦   ¦   ¦   test_cli.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           test_cli.cpython-313-pytest-8.4.1.pyc
+¦   ¦           
+¦   +---unit
+¦   ¦   ¦   test_aiohttp_fetch.py
+¦   ¦   ¦   test_dispatcher.py
+¦   ¦   ¦   test_file_fetch.py
+¦   ¦   ¦   test_io_utils.py
+¦   ¦   ¦   test_logging_utils.py
+¦   ¦   ¦   test_md_tools.py
+¦   ¦   ¦   test_playwright_async.py
+¦   ¦   ¦   
+¦   ¦   +---__pycache__
+¦   ¦           test_aiohttp_fetch.cpython-313-pytest-8.4.1.pyc
+¦   ¦           test_file_fetch.cpython-313-pytest-8.4.1.pyc
+¦   ¦           test_io_utils.cpython-313-pytest-8.4.1.pyc
+¦   ¦           test_logging_utils.cpython-313-pytest-8.4.1.pyc
+¦   ¦           test_md_tools.cpython-313-pytest-8.4.1.pyc
+¦   ¦           test_playwright_async.cpython-313-pytest-8.4.1.pyc
+¦   ¦           
+¦   +---__pycache__
+¦           test_cli_smoke.cpython-313-pytest-8.4.1.pyc
+¦           test_core.cpython-313-pytest-8.4.1.pyc
+¦           test_dispatcher.cpython-313-pytest-8.4.1.pyc
+¦           test_splitters.cpython-313-pytest-8.4.1.pyc
+¦           
++---__pycache__
+        test_smoke.cpython-313-pytest-8.4.1.pyc
+        

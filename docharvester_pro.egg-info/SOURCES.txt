@@ -1,0 +1,11 @@
+pyproject.toml
+docharvester_pro/__init__.py
+docharvester_pro/scrape_to_markdown.py
+docharvester_pro.egg-info/PKG-INFO
+docharvester_pro.egg-info/SOURCES.txt
+docharvester_pro.egg-info/dependency_links.txt
+docharvester_pro.egg-info/entry_points.txt
+docharvester_pro.egg-info/requires.txt
+docharvester_pro.egg-info/top_level.txt
+docharvester_pro/utils/chat_export_splitter.py
+tests/tests_core.py
