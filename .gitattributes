@@ -1,0 +1,11 @@
+# Git LFS configuration for doc-harvester-pro
+# Generated on 2025-10-09 02:40:01
+
+# Large HTML and JSON files
+*.html filter=lfs diff=lfs merge=lfs -text
+*.json filter=lfs diff=lfs merge=lfs -text
+
+# Large executables  
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
