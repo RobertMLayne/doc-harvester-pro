@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""
-Split a ChatGPT exported conversation HTML into Markdown chunks.
+"""Split a ChatGPT exported conversation HTML into Markdown chunks.
+
 Usage:
-    python utils/chat_export_splitter.py chat.html ./md_out --date-folders
+    python docharvester_pro/utils/chat_export_splitter.py chat.html ./md --date-folders
 """
 
 from __future__ import annotations
