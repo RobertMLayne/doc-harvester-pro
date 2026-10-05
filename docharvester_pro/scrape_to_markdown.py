@@ -29,9 +29,14 @@ from urllib.parse import urlparse
 
 import aiohttp
 import markdownify
-from aiohttp import ClientSession, ClientTimeout
+from aiohttp import ClientTimeout
 from bs4 import BeautifulSoup, SoupStrainer
 from playwright.async_api import async_playwright, Page, Route
+
+if __package__:
+    from .safe_http import PublicHttpSession, UnsafeDestination
+else:
+    from safe_http import PublicHttpSession, UnsafeDestination
 
 # --------------------------------------------------------------------------- #
 # Configuration                                                               #
@@ -119,7 +124,7 @@ def extract_jsonld_dates(html: str) -> str | None:
     return None
 
 
-async def likely_static(session: ClientSession, url: str) -> bool:
+async def likely_static(session: PublicHttpSession, url: str) -> bool:
     """Heuristic: first 64 kB contain <main> & few <script>."""
     try:
         async with session.get(
@@ -135,13 +140,11 @@ async def likely_static(session: ClientSession, url: str) -> bool:
 # robots.txt & crawl‑delay                                                    #
 # --------------------------------------------------------------------------- #
 
-ROBOTS_CACHE: Dict[str, dict] = {}
-
-
-async def fetch_robots(session: ClientSession, host: str) -> dict:
-    if host in ROBOTS_CACHE:
-        return ROBOTS_CACHE[host]
-    url = f"https://{host}/robots.txt"
+async def fetch_robots(session: PublicHttpSession, source_url: str) -> dict:
+    origin = session.scope.origin_url(source_url)
+    if origin in session.robots_cache:
+        return session.robots_cache[origin]
+    url = f"{origin}/robots.txt"
     delay: int | None = None
     sitemaps: list[str] = []
     try:
@@ -154,11 +157,20 @@ async def fetch_robots(session: ClientSession, host: str) -> dict:
                         except ValueError:
                             pass
                     if line.lower().startswith("sitemap:"):
-                        sitemaps.append(line.split(":", 1)[1].strip())
-    except aiohttp.ClientError:
+                        candidate = line.split(":", 1)[1].strip()
+                        try:
+                            sitemaps.append(
+                                session.scope.resolve_url(url, candidate)
+                            )
+                        except UnsafeDestination:
+                            # Remote discovery cannot expand the operator's
+                            # explicit seed origins, even for another sitemap.
+                            continue
+    except (aiohttp.ClientError, UnsafeDestination):
         pass
-    ROBOTS_CACHE[host] = {"delay": delay, "sitemaps": sitemaps}
-    return ROBOTS_CACHE[host]
+    result = {"delay": delay, "sitemaps": sitemaps}
+    session.robots_cache[origin] = result
+    return result
 
 
 # --------------------------------------------------------------------------- #
@@ -170,32 +182,43 @@ SITEMAP_LOC = re.compile(r"<loc>(.*?)</loc>", re.I)
 
 async def discover_urls(seed: list[str], max_urls: int = 10_000) -> list[str]:
     """Breadth‑first sitemap discovery bounded by max_urls."""
-    discovered: Set[str] = set(seed)
-    queue: list[str] = seed[:]
-    async with aiohttp.ClientSession(headers={"User-Agent": USER_AGENT}) as session:
-        while queue and len(discovered) < max_urls:
+    if isinstance(max_urls, bool) or not isinstance(max_urls, int) or max_urls < 1:
+        raise ValueError("max_urls must be a positive integer")
+    async with PublicHttpSession(
+        seed, headers={"User-Agent": USER_AGENT}
+    ) as session:
+        discovered: Set[str] = set()
+        queue: list[str] = []
+
+        def enqueue(candidate: str, base: str) -> None:
+            try:
+                candidate = session.scope.resolve_url(base, candidate)
+            except UnsafeDestination:
+                return
+            if candidate not in discovered and len(discovered) < max_urls:
+                discovered.add(candidate)
+                queue.append(candidate)
+
+        for url in seed:
+            enqueue(url, url)
+        while queue:
             url = queue.pop(0)
-            host = urlparse(url).hostname or ""
             # robots.txt
-            robots = await fetch_robots(session, host)
-            queue.extend(robots["sitemaps"])
+            robots = await fetch_robots(session, url)
+            for sitemap in robots["sitemaps"]:
+                enqueue(sitemap, url)
             # if XML fetch & recurse
-            if url.endswith(".xml"):
+            if urlparse(url).path.endswith(".xml"):
                 try:
                     async with session.get(url, timeout=15) as r:
                         if r.status == 200:
                             for loc in SITEMAP_LOC.findall(await r.text()):
-                                if loc not in discovered:
-                                    discovered.add(loc)
-                                    queue.append(loc)
-                except aiohttp.ClientError:
+                                enqueue(loc, url)
+                except (aiohttp.ClientError, UnsafeDestination):
                     pass
             # smart fallbacks
             for guess in ("sitemap.xml", "sitemap_index.xml"):
-                g_url = f"https://{host}/{guess}"
-                if g_url not in discovered:
-                    discovered.add(g_url)
-                    queue.append(g_url)
+                enqueue(f"{session.scope.origin_url(url)}/{guess}", url)
     return sorted(discovered)
 
 
@@ -246,7 +269,7 @@ async def playwright_context():
 # --------------------------------------------------------------------------- #
 
 
-async def fetch_static(session: ClientSession, url: str) -> tuple[str, str]:
+async def fetch_static(session: PublicHttpSession, url: str) -> tuple[str, str]:
     """Return (html, last‑modified/etag or '')"""
     hdrs = {"User-Agent": USER_AGENT}
     async with session.get(url, headers=hdrs) as r:
@@ -276,12 +299,13 @@ def html_to_markdown(html: str) -> str:
 
 async def process_url(
     url: str,
-    session: ClientSession,
+    session: PublicHttpSession,
     ctx,
     db: HashDB,
     args,
     locks: dict[str, asyncio.Lock],
 ) -> None:
+    url = session.require_url(url)
     host = urlparse(url).hostname or ""
     use_static = (
         args.no_render
@@ -291,7 +315,7 @@ async def process_url(
     )
 
     # obey per‑host crawl‑delay
-    robots = await fetch_robots(session, host)
+    robots = await fetch_robots(session, url)
     if robots["delay"]:
         await asyncio.sleep(robots["delay"])
 
@@ -387,9 +411,14 @@ def main() -> None:
     args = build_arg_parser().parse_args()
 
     if args.auto_discover:
-        urls = asyncio.run(discover_urls([args.auto_discover]))
+        seed_urls = [args.auto_discover]
+        urls = asyncio.run(discover_urls(seed_urls))
     elif args.urls:
-        urls = Path(args.urls).read_text().splitlines()
+        seed_urls = [
+            url.strip() for url in Path(args.urls).read_text().splitlines()
+            if url.strip()
+        ]
+        urls = seed_urls[:]
     else:
         print("Provide --urls or --auto-discover"); sys.exit(1)
 
@@ -402,8 +431,12 @@ def main() -> None:
     host_sems: Dict[str, asyncio.Semaphore] = {}
 
     async def runner():
-        async with aiohttp.ClientSession(headers={"User-Agent": USER_AGENT}) as session, \
-                   playwright_context() as ctx:
+        async with (
+            PublicHttpSession(
+                seed_urls, headers={"User-Agent": USER_AGENT}
+            ) as session,
+            playwright_context() as ctx,
+        ):
             async def worker(url: str):
                 host = urlparse(url).hostname or ""
                 cap = 4 if host == "developers.google.com" else args.max_concurrency
